@@ -18,12 +18,12 @@ namespace HaruhiGekidouTests.Tests
 
         private static readonly string[] _scriptArcNames =      
         [
-            //"Bonus_000",  i don't think Bonus contains script data, so I'll pass on them for now
-            //"Bonus_001",
-            //"Bonus_002",
-            //"Bonus_003",
-            //"Bonus_004",
-            //"Bonus_005",
+            "Bonus_000",  
+            "Bonus_001",
+            "Bonus_002",
+            "Bonus_003",
+            "Bonus_004",
+            "Bonus_005",
             "Scene_000",
             "Scene_001",
             "Scene_002",
