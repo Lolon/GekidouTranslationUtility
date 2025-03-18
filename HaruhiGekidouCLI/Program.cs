@@ -10,6 +10,7 @@ class Program
         {
             new ArcCommand(),
             new AdvScriptCommand(),
+            new TplCommand(),
         };
 
         commands.Run(args);

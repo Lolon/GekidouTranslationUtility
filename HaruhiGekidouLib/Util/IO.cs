@@ -76,4 +76,11 @@ public static class IO
     {
         return Encoding.ASCII.GetString(data.Skip(offset).TakeWhile(b => b != 0x00).ToArray());
     }
+
+    public static float ReadFloat(byte[] data, int offset)
+    {
+        return BinaryPrimitives.ReadSingleBigEndian(data.AsSpan(offset..(offset + 4)));
+    }
+    
+    
 }
