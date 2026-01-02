@@ -9,6 +9,7 @@ using HaruhiGekidouLib;
 using HaruhiGekidouLib.Archive;
 using HaruhiGekidouLib.Util;
 using HaruhiGekidouLib.Script;
+using HaruhiGekidouLib.TexturePalleteLibrary;
 
 
 namespace HaruhiGekidouTests.Tests
@@ -46,6 +47,12 @@ namespace HaruhiGekidouTests.Tests
             "Tutorial_005",
             "Tutorial_006"
         ];
+
+        public static string[] _tplFiles =
+        {
+            "test",
+            "main_haruhi",
+        };
 
         public static string[] AdvPartScriptFiles()
         {
@@ -134,6 +141,25 @@ namespace HaruhiGekidouTests.Tests
             File.WriteAllBytes("./output/AdvPartScript/" + Path.GetFileName(scriptPath), newScriptBytes);
             //compare
             Assert.That(newScriptBytes, Is.EqualTo(scriptBytes));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(_tplFiles))]
+        [Parallelizable(ParallelScope.All)]
+
+        public void validateTpl(string tplFileName)
+        {
+            byte[] tplBytes = File.ReadAllBytes("./input/layout/menuMain.arc/timg/" + tplFileName + ".tpl");
+            TexturePaletteLibrary tpl = new(tplBytes);
+            byte[] newBytes = tpl.GetBytes();
+            
+            //save them out
+            Directory.CreateDirectory("./output/layout/menuMain.arc/timg/");
+            Byte[] pngBytes = tpl.toPNG(0);
+            File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + tplFileName + ".png", pngBytes);
+            File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + tplFileName + ".tpl", newBytes);
+            
+            Assert.That(newBytes, Is.EqualTo(tplBytes));
         }
     }
 }

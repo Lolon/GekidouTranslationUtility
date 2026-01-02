@@ -81,6 +81,13 @@ public static class IO
     {
         return BinaryPrimitives.ReadSingleBigEndian(data.AsSpan(offset..(offset + 4)));
     }
+
+    public static byte[] GetFloatBytes(float value)
+    {
+        var bytes = new byte[4];
+        BinaryPrimitives.WriteSingleBigEndian(bytes, value);
+        return bytes;
+    }
     
     
 }

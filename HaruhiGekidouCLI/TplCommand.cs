@@ -7,7 +7,7 @@ namespace HaruhiGekidouCLI;
 
 public class TplCommand : Command
 {
-    private string _input = string.Empty, _output = string.Empty, _imgIndex = string.Empty;
+    private string _input = string.Empty, _output = string.Empty, _png = string.Empty;
     private bool _extract, _replace;
 
     public TplCommand() : base("tpl", "Various functions to deal with texture palette libraries")
@@ -16,9 +16,9 @@ public class TplCommand : Command
         {
             { "x|extract", "Extracts all the images inside a tpl as pngs", _ => _extract = true },
             { "r|replace", "replaces an image inside a tpl with the input", _ => _replace = true },
-            { "i|input=", "The path to the input tpl or png", i => _input = i },
-            { "o|output=", "The path to the output tpl, png, or CSV", o => _output = o },
-            { "n|index=", "The index of the image inside the tpl file to replace", n => _imgIndex = n },
+            { "i|input=", "The path to the input tpl", i => _input = i },
+            { "o|output=", "The path to the output tpl or png", o => _output = o },
+            { "png|png=", "The png you wish to use to replace", n => _png = n },
         };
     }
 
@@ -39,8 +39,12 @@ public class TplCommand : Command
                 File.WriteAllBytes( _output,tpl.toPNG(0));
             }
         }
-        
-
+        else if (_replace)
+        {
+            TexturePaletteLibrary tpl = new(File.ReadAllBytes(_input));
+            tpl.ImportPng(_png);
+            File.WriteAllBytes( _output,tpl.GetBytes());
+        }
 
         else
         {
