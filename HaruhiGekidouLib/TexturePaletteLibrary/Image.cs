@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using SkiaSharp;
 using HaruhiGekidouLib.Util;
 
@@ -84,7 +85,8 @@ public class Image
                                 byte colorByte = data[ci8Index];
                                 int colIndex = colorByte;
                                 SKColor color = colPalette.Colors[colIndex];
-                                bitmap.SetPixel(x + col, y + row, color);
+
+                            bitmap.SetPixel(x + col, y + row, color);
                                 ci8Index += 1; 
                             }
                         }
@@ -129,7 +131,17 @@ public class Image
                                 }
 
                                 SKColor color = bitmap.GetPixel(x + col, y + row);
-                                int iPaletteIndex = int.Clamp(assignedPalette.Colors.IndexOf(color), 0, 255);
+                                int iPaletteIndex = assignedPalette.Colors.IndexOf(color);
+                                if (iPaletteIndex == -1)
+                                {
+                                    PnnQuantizer quantizer = new PnnQuantizer();
+                                    iPaletteIndex = quantizer.DitherColorIndex(assignedPalette.Colors.ToArray(), (uint)color, ci8Index);
+                                    if (iPaletteIndex == -1)
+                                    {
+                                        throw new InvalidDataException("no color found for " + color.ToString() +
+                                                                       " in palette!");
+                                    }
+                                }
                                 byte paletteindex = Convert.ToByte(iPaletteIndex);
                                 data.Add(paletteindex);
 

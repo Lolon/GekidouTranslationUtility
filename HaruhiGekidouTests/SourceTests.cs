@@ -155,8 +155,8 @@ namespace HaruhiGekidouTests.Tests
             
             //save them out
             Directory.CreateDirectory("./output/layout/menuMain.arc/timg/");
-            Byte[] pngBytes = tpl.toPNG(0);
-            File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + tplFileName + ".png", pngBytes);
+            //Byte[] pngBytes = tpl.toPNG(0);
+           // File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + tplFileName + ".png", pngBytes);
             File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + tplFileName + ".tpl", newBytes);
             
             Assert.That(newBytes, Is.EqualTo(tplBytes));
