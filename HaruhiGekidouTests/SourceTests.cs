@@ -48,11 +48,18 @@ namespace HaruhiGekidouTests.Tests
             "Tutorial_006"
         ];
 
-        public static string[] _tplFiles =
+        public static string[] _tplFiles()
         {
-            "main_haruhi",
-            "main_menu_picture02_g",
-        };
+            var dir = Path.Combine("input", "layout", "menuMain.arc", "timg");
+            if (Directory.Exists(dir))
+            {
+                return Directory.GetFiles(dir);
+            }
+            else
+            {
+                return Array.Empty<string>();
+            }
+        }
 
         public static string[] AdvPartScriptFiles()
         {
@@ -149,15 +156,15 @@ namespace HaruhiGekidouTests.Tests
 
         public void validateTpl(string tplFileName)
         {
-            byte[] tplBytes = File.ReadAllBytes("./input/layout/menuMain.arc/timg/" + tplFileName + ".tpl");
+            byte[] tplBytes = File.ReadAllBytes(tplFileName);
             TexturePaletteLibrary tpl = new(tplBytes);
             byte[] newBytes = tpl.GetBytes();
             
             //save them out
             Directory.CreateDirectory("./output/layout/menuMain.arc/timg/");
-            Byte[] pngBytes = tpl.toPNG(0);
-            File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + tplFileName + ".png", pngBytes);
-            File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + tplFileName + ".tpl", newBytes);
+            //Byte[] pngBytes = tpl.ToPng(0);
+            //File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + Path.GetFileNameWithoutExtension(tplFileName) + ".png", pngBytes);
+            File.WriteAllBytes("./output/layout/menuMain.arc/timg/" + Path.GetFileNameWithoutExtension(tplFileName)+".tpl", newBytes);
             
             Assert.That(newBytes, Is.EqualTo(tplBytes));
         }

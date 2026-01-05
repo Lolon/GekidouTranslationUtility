@@ -36,7 +36,7 @@ public class TplCommand : Command
             TexturePaletteLibrary tpl = new(File.ReadAllBytes(_input));
             if (tpl.Images.Count >0)
             {
-                File.WriteAllBytes( _output,tpl.toPNG(0));
+                File.WriteAllBytes( _output,tpl.ToPng(0));
             }
         }
         else if (_replace)

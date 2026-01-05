@@ -8,22 +8,22 @@ public class CI8 : ImageFormatBase
 {
     public CI8(byte[] data, int startAddress, ColorPalette colPalette, SKBitmap image) : base(data, startAddress, image, colPalette)
     {
-        blockWidth = 8;
-        blockHeight = 4;
+        BlockWidth = 8;
+        BlockHeight = 4;
         
         int width = image.Width;
         int height = image.Height;
         
         int Index = startAddress;
-        int heightMod = (blockHeight - (height % blockHeight)) == blockHeight ? 0 : blockHeight - (width % blockHeight);
-        for (int y = 0; y < height+heightMod; y += blockHeight) //each pixel row
+        int heightMod = (BlockHeight - (height % BlockHeight)) == BlockHeight ? 0 : BlockHeight - (width % BlockHeight);
+        for (int y = 0; y < height+heightMod; y += BlockHeight) //each pixel row
         {
-            int widthMod = (blockWidth - (width % blockWidth)) == blockWidth ? 0 : blockWidth - (width % blockWidth);
-            for (int x = 0; x < width + widthMod; x += blockWidth)   //each pixel column
+            int widthMod = (BlockWidth - (width % BlockWidth)) == BlockWidth ? 0 : BlockWidth - (width % BlockWidth);
+            for (int x = 0; x < width + widthMod; x += BlockWidth)   //each pixel column
             {
-                for (int row = 0; row < blockHeight; row++)
+                for (int row = 0; row < BlockHeight; row++)
                 {
-                    for (int col = 0; col < blockWidth; col++)
+                    for (int col = 0; col < BlockWidth; col++)
                     {
                         if (Index + 1 >= data.Length || x + col >= width || y + row >= height)
                         {
@@ -43,50 +43,51 @@ public class CI8 : ImageFormatBase
         }
     }
 
-    public override byte[] GetBytes(SKBitmap bitmap, ColorPalette? colorPalette)
+    public override byte[] GetBytes(SKBitmap bitmap, ColorPalette? colorPalette = null)
     {
-        List<byte> bytes = new List<byte>();
+        List<byte> bytes = [];
         int width = bitmap.Width;
         int height = bitmap.Height;
         
-        int Index = 0;
-        int heightMod = (blockHeight - (height % blockHeight)) == blockHeight ? 0 : blockHeight - (width % blockHeight);
-        for (int y = 0; y < height +heightMod; y += blockHeight) //each pixel row
+        int index = 0;
+        int heightMod = (BlockHeight - (height % BlockHeight)) == BlockHeight ? 0 : BlockHeight - (width % BlockHeight);
+        for (int y = 0; y < height +heightMod; y += BlockHeight) //each pixel row
         {
-            int widthMod = (blockWidth - (width % blockWidth)) == blockWidth ? 0 : blockWidth - (width % blockWidth);
-            for (int x = 0; x < width + widthMod; x += blockWidth)   //each pixel column
+            int widthMod = (BlockWidth - (width % BlockWidth)) == BlockWidth ? 0 : BlockWidth - (width % BlockWidth);
+            for (int x = 0; x < width + widthMod; x += BlockWidth)   //each pixel column
             {
-                for (int row = 0; row < blockHeight; row++)
+                for (int row = 0; row < BlockHeight; row++)
                 {
-                    for (int col = 0; col < blockWidth; col++)
+                    for (int col = 0; col < BlockWidth; col++)
                     {
                         if (x + col >= width || y + row >= height)
                         {
                             bytes.Add(0);
-                            Index += 1;
+                            index += 1;
                             continue;
                         }
 
                         SKColor color = bitmap.GetPixel(x + col, y + row);
-                        int iPaletteIndex = colorPalette.Colors.IndexOf(color);
-                        if (iPaletteIndex == -1)
+                        if (colorPalette != null)
                         {
-                            PnnQuantizer quantizer = new PnnQuantizer();
-                            iPaletteIndex = quantizer.DitherColorIndex(colorPalette.Colors.ToArray(), (uint)color,
-                                Index);
+                            int iPaletteIndex = colorPalette.Colors.IndexOf(color);
                             if (iPaletteIndex == -1)
                             {
-                                throw new InvalidDataException(
-                                    "no color found for " + color.ToString() + " in palette!");
+                                PnnQuantizer quantizer = new PnnQuantizer();
+                                iPaletteIndex = quantizer.DitherColorIndex(colorPalette.Colors.ToArray(), (uint)color,
+                                    index);
+                                if (iPaletteIndex == -1)
+                                {
+                                    throw new InvalidDataException(
+                                        "no color found for " + color.ToString() + " in palette!");
+                                }
                             }
+
+                            byte paletteIndex = Convert.ToByte(iPaletteIndex);
+                            bytes.Add(paletteIndex);
                         }
 
-                        byte paletteindex = Convert.ToByte(iPaletteIndex);
-                        bytes.Add(paletteindex);
-
-                        //Data[ia8Index] = color.Alpha;
-                        // Data[ia8Index + 1] = (byte)((color.Red / 3) + (color.Blue / 3) + (color.Green / 3));
-                        Index += 1;
+                        index += 1;
                     }
                 }
             }

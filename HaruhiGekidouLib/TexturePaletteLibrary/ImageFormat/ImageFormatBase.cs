@@ -5,8 +5,8 @@ namespace HaruhiGekidouLib.TexturePaletteLibrary.ImageFormat;
 
 public class ImageFormatBase
 {
-    public int blockWidth;
-    public int blockHeight;
+    public int BlockWidth;
+    public int BlockHeight;
 
     public ImageFormatBase(byte[] data, int startAddress, SKBitmap image, ColorPalette? colPalette = null)
     {

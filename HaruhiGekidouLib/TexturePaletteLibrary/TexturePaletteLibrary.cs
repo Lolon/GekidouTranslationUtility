@@ -7,9 +7,9 @@ namespace HaruhiGekidouLib.TexturePalleteLibrary;
 
 public class TexturePaletteLibrary
 {
-    public const uint Version = 0x20AF30;
+    private const uint Version = 0x20AF30;
 
-    public List<ColorPalette> Palettes { get; set; } = [];
+    private List<ColorPalette> Palettes { get; set; } = [];
     public List<Image>  Images { get; set; } = [];
     
     
@@ -30,17 +30,15 @@ public class TexturePaletteLibrary
         for (int i = 0; i < numImages; i++)
         {
             int imageHeaderOffset = IO.ReadInt(data, imageTableEntryOffset);
-            int palleteHeaderOffset = IO.ReadInt(data, imageTableEntryOffset+0x04);
-            ImageOffsetTable.Add(imageHeaderOffset, palleteHeaderOffset);
+            int paletteHeaderOffset = IO.ReadInt(data, imageTableEntryOffset+0x04);
+            ImageOffsetTable.Add(imageHeaderOffset, paletteHeaderOffset);
             imageTableEntryOffset += 0x08;
 
-            if (palleteHeaderOffset != 0)
+            if (paletteHeaderOffset != 0)
             {
                 //palette header, can be moved into class
-                int paletteEntryCount = IO.ReadShort(data, palleteHeaderOffset);
-                int paletteFormat = IO.ReadInt(data, palleteHeaderOffset + 0x04);
-                int palleteDataAddress = IO.ReadInt(data, palleteHeaderOffset + 0x08);
-                Palettes.Add(new ColorPalette(data, palleteDataAddress, paletteFormat, paletteEntryCount));
+                
+                Palettes.Add(new ColorPalette(data,paletteHeaderOffset));
                 Images.Add(new Image(data,imageHeaderOffset, Palettes[i]));
             }
             else
@@ -51,9 +49,9 @@ public class TexturePaletteLibrary
         
     }
 
-    public byte[] toPNG(int imageIndex)
+    public byte[] ToPng(int imageIndex)
     {
-        SKImage image = SKImage.FromBitmap(Images[imageIndex].bitmap);
+        SKImage image = SKImage.FromBitmap(Images[imageIndex].Bitmap);
         return image.Encode(SKEncodedImageFormat.Png, 100).ToArray();
     }
 
@@ -68,23 +66,23 @@ public class TexturePaletteLibrary
 
        //image offset table
        
-       List<byte> PaletteHD = new List<byte>();
-       List<byte> ImageHD = new List<byte>();
-       int ImagePointer = bytes.Count+(Images.Count * 8);
+       List<byte> paletteHD = [];
+       List<byte> imageHD = [];
+       int imagePointer = bytes.Count+(Images.Count * 8);
        for (int i = 0; i < Images.Count; i++)
        {
            if (Palettes.Count > 0)
            {
-               PaletteHD.AddRange(Palettes[i].GetBytes()); //palette header and data
+               paletteHD.AddRange(Palettes[i].GetBytes()); //palette header and data
            }
-           ImageHD.AddRange(Images[i].GetBytes(ImagePointer+PaletteHD.Count)); //image header and data
-           bytes.AddRange(IO.GetIntBytes(ImagePointer+PaletteHD.Count)); //offset to image header
-           bytes.AddRange(Palettes.Count > 0 ? IO.GetIntBytes(ImagePointer) : IO.GetIntBytes(0)); //offset to palette header
-           ImagePointer += PaletteHD.Count+ImageHD.Count;
+           imageHD.AddRange(Images[i].GetBytes(imagePointer+paletteHD.Count)); //image header and data
+           bytes.AddRange(IO.GetIntBytes(imagePointer+paletteHD.Count)); //offset to image header
+           bytes.AddRange(Palettes.Count > 0 ? IO.GetIntBytes(imagePointer) : IO.GetIntBytes(0)); //offset to palette header
+           imagePointer += paletteHD.Count+imageHD.Count;
        }
         //palette and image data
-       bytes.AddRange(PaletteHD);
-       bytes.AddRange(ImageHD);
+       bytes.AddRange(paletteHD);
+       bytes.AddRange(imageHD);
        
        
         return[..bytes];
@@ -94,6 +92,5 @@ public class TexturePaletteLibrary
     {
         SKBitmap replacement = SKBitmap.Decode(path);
         Images[0].ReplaceImageData(replacement); 
-        
     }
 }

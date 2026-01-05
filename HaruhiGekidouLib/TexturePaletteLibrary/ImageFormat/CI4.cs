@@ -8,22 +8,22 @@ public class CI4 : ImageFormatBase
 {
     public CI4(byte[] data, int startAddress, ColorPalette colPalette, SKBitmap image) : base(data, startAddress, image, colPalette)
     {
-        blockWidth = 8;
-        blockHeight = 8;
+        BlockWidth = 8;
+        BlockHeight = 8;
         
         int width = image.Width;
         int height = image.Height;
         
         int index = startAddress;
-        int heightMod = (blockHeight - (height % blockHeight)) == blockHeight ? 0 : blockHeight - (width % blockHeight);
-        for (int y = 0; y < height+heightMod; y += blockHeight) //each pixel row
+        int heightMod = (BlockHeight - (height % BlockHeight)) == BlockHeight ? 0 : BlockHeight - (width % BlockHeight);
+        for (int y = 0; y < height+heightMod; y += BlockHeight) //each pixel row
         {
-            int widthMod = (blockWidth - (width % blockWidth)) == blockWidth ? 0 : blockWidth - (width % blockWidth);
-            for (int x = 0; x < width + widthMod; x += blockWidth)   //each pixel column
+            int widthMod = (BlockWidth - (width % BlockWidth)) == BlockWidth ? 0 : BlockWidth - (width % BlockWidth);
+            for (int x = 0; x < width + widthMod; x += BlockWidth)   //each pixel column
             {
-                for (int row = 0; row < blockHeight; row++)
+                for (int row = 0; row < BlockHeight; row++)
                 {
-                    for (int col = 0; col < blockWidth; col++)
+                    for (int col = 0; col < BlockWidth; col++)
                     {
                         if (index + 1 >= data.Length || x + col >= width || y + row >= height)
                         {
@@ -50,15 +50,15 @@ public class CI4 : ImageFormatBase
         int height = bitmap.Height;
         
         int index = 0;
-        int heightMod = (blockHeight - (height % blockHeight)) == blockHeight ? 0 : blockHeight - (width % blockHeight);
-        for (int y = 0; y < height +heightMod; y += blockHeight) //each pixel row
+        int heightMod = (BlockHeight - (height % BlockHeight)) == BlockHeight ? 0 : BlockHeight - (width % BlockHeight);
+        for (int y = 0; y < height +heightMod; y += BlockHeight) //each pixel row
         {
-            int widthMod = (blockWidth - (width % blockWidth)) == blockWidth ? 0 : blockWidth - (width % blockWidth);
-            for (int x = 0; x < width + widthMod; x += blockWidth)   //each pixel column
+            int widthMod = (BlockWidth - (width % BlockWidth)) == BlockWidth ? 0 : BlockWidth - (width % BlockWidth);
+            for (int x = 0; x < width + widthMod; x += BlockWidth)   //each pixel column
             {
-                for (int row = 0; row < blockHeight; row++)
+                for (int row = 0; row < BlockHeight; row++)
                 {
-                    for (int col = 0; col < blockWidth; col++)
+                    for (int col = 0; col < BlockWidth; col++)
                     {
                         if (x + col >= width || y + row >= height)
                         {

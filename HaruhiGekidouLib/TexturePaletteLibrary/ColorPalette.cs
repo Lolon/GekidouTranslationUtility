@@ -12,7 +12,6 @@ public enum EPaletteFormat
     RGB5A3 = 2, //implemented
 }
 
-
 public class ColorPalette
 {
 
@@ -21,24 +20,26 @@ public class ColorPalette
     public short NumColors;
     public List<SKColor>  Colors { get; set; } = [];
     
-    public ColorPalette(byte[] data, int paletteDataAddress, int format, int numColors)
+    public ColorPalette(byte[] data, int paletteHeaderOffset)
     {
-        NumColors = Convert.ToInt16(numColors);
-        Format= (EPaletteFormat)format;
+        int paletteEntryCount = IO.ReadShort(data, paletteHeaderOffset);
+        int paletteFormat = IO.ReadInt(data, paletteHeaderOffset + 0x04);
+        int paletteDataAddress = IO.ReadInt(data, paletteHeaderOffset + 0x08);
+        NumColors = Convert.ToInt16(paletteEntryCount);
+        Format= (EPaletteFormat)paletteFormat;
         switch (Format)
         {
             case EPaletteFormat.RGB5A3:
             {
                 ColorFormat = new Rgb5A3();
-                for (int i = 0; i < NumColors; i++)
-                {
-                    Colors.Add(this.ColorFormat.GetColorFrom(data,paletteDataAddress + (i * 2)));
-                }
-
                 break;
             }
             default:
                 throw new Exception("Palette format "+Format.ToString()+" not supported");
+        }
+        for (int i = 0; i < NumColors; i++)
+        {
+            Colors.Add(this.ColorFormat.GetColorFrom(data,paletteDataAddress + (i * 2)));
         }
         
     }
