@@ -33,14 +33,20 @@ public class TexturePaletteLibrary
             int palleteHeaderOffset = IO.ReadInt(data, imageTableEntryOffset+0x04);
             ImageOffsetTable.Add(imageHeaderOffset, palleteHeaderOffset);
             imageTableEntryOffset += 0x08;
-            
-            //palette header, can be moved into class
-            int paletteEntryCount = IO.ReadShort(data, palleteHeaderOffset);
-            int paletteFormat = IO.ReadInt(data, palleteHeaderOffset + 0x04);
-            int palleteDataAddress = IO.ReadInt(data, palleteHeaderOffset + 0x08);
-            Palettes.Add(new ColorPalette(data, palleteDataAddress, paletteFormat, paletteEntryCount));
 
-            Images.Add(new Image(data,imageHeaderOffset, Palettes[i]));
+            if (palleteHeaderOffset != 0)
+            {
+                //palette header, can be moved into class
+                int paletteEntryCount = IO.ReadShort(data, palleteHeaderOffset);
+                int paletteFormat = IO.ReadInt(data, palleteHeaderOffset + 0x04);
+                int palleteDataAddress = IO.ReadInt(data, palleteHeaderOffset + 0x08);
+                Palettes.Add(new ColorPalette(data, palleteDataAddress, paletteFormat, paletteEntryCount));
+                Images.Add(new Image(data,imageHeaderOffset, Palettes[i]));
+            }
+            else
+            {
+                Images.Add(new Image(data, imageHeaderOffset));
+            }
         }
         
     }
@@ -61,15 +67,19 @@ public class TexturePaletteLibrary
        bytes.Add(0x0c); //the table comes after the header, so 0c is assumed
 
        //image offset table
+       
        List<byte> PaletteHD = new List<byte>();
        List<byte> ImageHD = new List<byte>();
        int ImagePointer = bytes.Count+(Images.Count * 8);
        for (int i = 0; i < Images.Count; i++)
        {
-           PaletteHD.AddRange(Palettes[i].GetBytes());   //palette header and data
+           if (Palettes.Count > 0)
+           {
+               PaletteHD.AddRange(Palettes[i].GetBytes()); //palette header and data
+           }
            ImageHD.AddRange(Images[i].GetBytes(ImagePointer+PaletteHD.Count)); //image header and data
            bytes.AddRange(IO.GetIntBytes(ImagePointer+PaletteHD.Count)); //offset to image header
-           bytes.AddRange(IO.GetIntBytes(ImagePointer));    //offset to palette header
+           bytes.AddRange(Palettes.Count > 0 ? IO.GetIntBytes(ImagePointer) : IO.GetIntBytes(0)); //offset to palette header
            ImagePointer += PaletteHD.Count+ImageHD.Count;
        }
         //palette and image data
