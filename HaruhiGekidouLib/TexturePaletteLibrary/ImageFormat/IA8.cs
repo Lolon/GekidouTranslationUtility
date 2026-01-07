@@ -10,74 +10,54 @@ public class IA8 : ImageFormatBase
     {
         BlockWidth = 4;
         BlockHeight = 4;
+        ValueSize = 2;
         
         int width = image.Width;
         int height = image.Height;
         
-        int Index = startAddress;
-        int heightMod = (BlockHeight - (height % BlockHeight)) == BlockHeight ? 0 : BlockHeight - (width % BlockHeight);
-        for (int y = 0; y < height+heightMod; y += BlockHeight) //each pixel row
+        scanIndex = startAddress;
+        while (LinearProcess(width, height))
         {
-            int widthMod = (BlockWidth - (width % BlockWidth)) == BlockWidth ? 0 : BlockWidth - (width % BlockWidth);
-            for (int x = 0; x < width + widthMod; x += BlockWidth)   //each pixel column
+            if (scanIndex + ValueSize >= data.Length || x + blockColumn >= width || y + blockRow >= height)
             {
-                for (int row = 0; row < BlockHeight; row++)
-                {
-                    for (int col = 0; col < BlockWidth; col++)
-                    {
-                        if (Index + 2 >= data.Length || x + col >= width || y + row >= height)
-                        {
-                            Index += 2;
-                            continue;
-                        }
-
-                        //byte colorByte = data[Index];
-                        byte intensity = (byte) data[Index + 1];
-                        byte alpha = (byte)data[Index];
-                        SKColor color = new SKColor(intensity, intensity, intensity, alpha);
-
-                        image.SetPixel(x + col, y + row, color);
-                        Index += 2; 
-                    }
-                }
+                scanIndex += ValueSize;
+                continue;
             }
+
+            //byte colorByte = data[Index];
+            byte intensity = (byte) data[scanIndex + 1];
+            byte alpha = (byte)data[scanIndex];
+            SKColor color = new SKColor(intensity, intensity, intensity, alpha);
+
+            image.SetPixel(x + blockColumn, y + blockRow, color);
+            scanIndex += ValueSize; 
         }
     }
+    
 
     public override byte[] GetBytes(SKBitmap bitmap, ColorPalette? colorPalette)
     {
         List<byte> bytes = new List<byte>();
         int width = bitmap.Width;
         int height = bitmap.Height;
-        
-        int heightMod = (BlockHeight - (height % BlockHeight)) == BlockHeight ? 0 : BlockHeight - (width % BlockHeight);
-        for (int y = 0; y < height +heightMod; y += BlockHeight) //each pixel row
-        {
-            int widthMod = (BlockWidth - (width % BlockWidth)) == BlockWidth ? 0 : BlockWidth - (width % BlockWidth);
-            for (int x = 0; x < width + widthMod; x += BlockWidth)   //each pixel column
-            {
-                for (int row = 0; row < BlockHeight; row++)
-                {
-                    for (int col = 0; col < BlockWidth; col++)
-                    {
-                        if (x + col >= width || y + row >= height)
-                        {
-                            bytes.Add(0);
-                            bytes.Add(0);
-                            continue;
-                        }
 
-                        SKColor color = bitmap.GetPixel(x + col, y + row);
-                        //alpha is the first byte
-                        //color intensity is the second
-                        byte intensity = (byte) (color.Red);
-                        byte alpha = (byte)(color.Alpha);
-                        bytes.Add(alpha);
-                        bytes.Add(intensity);
-                    }
-                }
+        while (LinearProcess(width, height))
+        {
+            if (x + blockColumn >= width || y + blockRow >= height)
+            {
+                bytes.Add(0);
+                bytes.Add(0);
+                continue;
             }
-        }   
+
+            SKColor color = bitmap.GetPixel(x + blockColumn, y + blockRow);
+            //alpha is the first byte
+            //color intensity is the second
+            byte intensity = (byte) (color.Red);
+            byte alpha = (byte)(color.Alpha);
+            bytes.Add(alpha);
+            bytes.Add(intensity);
+        }
         return bytes.ToArray();
     }
 }
