@@ -67,6 +67,11 @@ public class Image
 
         switch (Format)
         {
+            case EImageFormat.IA4:
+            {
+                ImageFormat = new IA4(data, (int)ImageDataAddress,Bitmap);
+                break;
+            }
             case EImageFormat.IA8:
             {
                 ImageFormat = new IA8(data,(int)ImageDataAddress,Bitmap);
